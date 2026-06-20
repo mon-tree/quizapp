@@ -1,0 +1,21 @@
+.Container {
+    -fx-background-color: lightblue;
+    -fx-alignment: CENTER;
+    -fx-spacing: 15;
+}
+
+.Subject {
+    -fx-font-size: 35;
+    -fx-font-weight: bold;
+    -fx-fill: red;
+    -fx-stroke: gold;
+    -fx-stroke-width: 3;
+}
+
+.Button {
+    -fx-background-color: darkblue;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-padding: 10;
+    -fx-pref-width: 250;
+}
