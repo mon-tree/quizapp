@@ -1,8 +1,7 @@
 package com.dht.quizappv2;
 
 import com.dht.utils.MyAlertSingleton;
-import com.dht.utils.themes.DarkFactory;
-import com.dht.utils.themes.ThemeManager;
+import com.dht.utils.MyStageSingleton;
 import com.dht.utils.themes.ThemeTypes;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -10,7 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 
 
@@ -23,7 +21,7 @@ public class PrimaryController implements Initializable {
     }
     
     public void manageQuestion(ActionEvent e) {
-        MyAlertSingleton.getInstance().showMsg("Comming soon...");
+        MyStageSingleton.getInstance().showStage("questions");
     }
     
     public void practice(ActionEvent e) {
