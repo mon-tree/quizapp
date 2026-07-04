@@ -5,27 +5,31 @@
 package com.dht.quizappv2;
 
 import com.dht.pojo.Category;
+import com.dht.pojo.Choice;
+import com.dht.pojo.Level;
 import com.dht.pojo.Question;
-import com.dht.services.CategoryServices;
-import com.dht.services.questions.QuestionServices;
-import com.dht.utils.MyConnectionSingleton;
+import com.dht.utils.Configs;
+import com.dht.utils.MyAlertSingleton;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class
@@ -34,7 +38,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class QuestionsController implements Initializable {
     @FXML private ComboBox<Category> cbCates;
+    @FXML private ComboBox<Level> cbLevels;
+    @FXML private ComboBox<Category> cbSearchCates;
+    @FXML private ComboBox<Level> cbSearchLevels;
     @FXML private TableView<Question> tvQuestions;
+    @FXML private VBox vChoices;
+    @FXML private TextArea txtContent;
+    @FXML private TextField txtKeywords;
+    @FXML private ToggleGroup group;
 
     /**
      * Initializes the controller class.
@@ -43,16 +54,27 @@ public class QuestionsController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        CategoryServices s = new CategoryServices();
-        QuestionServices s2 = new QuestionServices();
-        
         this.loadColumns();
+        this.loadTableQuestions();
         try {
-            this.cbCates.setItems(FXCollections.observableList(s.getCates()));
-            this.tvQuestions.setItems(FXCollections.observableList(s2.getQuestions()));
+            this.cbCates.setItems(FXCollections.observableList(Configs.cateService.getCates()));
+            this.cbLevels.setItems(FXCollections.observableList(Configs.lvlService.getLevels()));
+            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateService.getCates()));
+            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.lvlService.getLevels()));
+            
         } catch (SQLException ex) {
-            Logger.getLogger(QuestionsController.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
+        
+        this.txtKeywords.textProperty().addListener(e -> {
+            this.loadTableQuestions();
+        });
+        this.cbSearchCates.getSelectionModel().selectedItemProperty().addListener(e -> {
+            this.loadTableQuestions();
+        });
+        this.cbSearchLevels.getSelectionModel().selectedItemProperty().addListener(e -> {
+            this.loadTableQuestions();
+        });
     }    
     
     private void loadColumns() {
@@ -65,5 +87,56 @@ public class QuestionsController implements Initializable {
         colContent.setPrefWidth(300);
         
         this.tvQuestions.getColumns().addAll(colId, colContent);
+    }
+    
+    public void addChoice(ActionEvent e) {
+        HBox h = new HBox();
+        h.getStyleClass().add("Container");
+        
+        RadioButton r = new RadioButton();
+        r.setToggleGroup(group);
+        
+        TextField t = new TextField();
+        t.getStyleClass().add("Input");
+        
+        h.getChildren().addAll(r, t);
+        
+        this.vChoices.getChildren().add(h);
+    }
+    
+    public void addQuestion(ActionEvent e) {
+        Question q = new Question.Builder()
+                .setCategory(this.cbCates.getSelectionModel().getSelectedItem())
+                .setContent(this.txtContent.getText())
+                .setLevel(this.cbLevels.getSelectionModel().getSelectedItem()).build();
+        
+        List<Choice> choices = new ArrayList<>();
+        for (var hb: this.vChoices.getChildren()) {
+            HBox h = (HBox) hb;
+            
+            RadioButton r = (RadioButton) h.getChildren().get(0);
+            TextField t = (TextField) h.getChildren().get(1);
+            
+            choices.add(new Choice(t.getText(), r.isSelected()));
+        }
+        
+        try {
+            Configs.uQuesService.addQuestion(q, choices);
+            
+            MyAlertSingleton.getInstance().showMsg("Thêm câu hỏi thành công!");
+            this.loadTableQuestions();
+        } catch (SQLException ex) {
+            MyAlertSingleton.getInstance().showMsg("Thêm câu hỏi thật bại, lý do: " + ex.getMessage());
+        }
+    }
+    
+    private void loadTableQuestions() {
+        try {
+            this.tvQuestions.setItems(FXCollections.observableList(Configs.quesService.getQuestions(this.txtKeywords.getText(),
+                    this.cbSearchCates.getSelectionModel().getSelectedItem(),
+                    this.cbSearchLevels.getSelectionModel().getSelectedItem())));
+        } catch (SQLException ex) {
+            Logger.getLogger(QuestionsController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
     }
 }

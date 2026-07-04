@@ -22,7 +22,7 @@ public class Level {
 
     @Override
     public String toString() {
-        return this.name; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+        return this.name; 
     }
     
     

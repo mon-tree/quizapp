@@ -20,3 +20,12 @@
     -fx-padding: 10;
     -fx-pref-width: 250;
 }
+
+.Input {
+    -fx-pref-width: 300;
+    -fx-padding: 10;
+}
+
+.combo-box > .list-cell {
+    -fx-text-fill: white; /* Replace with your preferred color */
+}
