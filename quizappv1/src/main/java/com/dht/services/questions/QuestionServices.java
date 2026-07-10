@@ -7,6 +7,7 @@ package com.dht.services.questions;
 import com.dht.pojo.Category;
 import com.dht.pojo.Level;
 import com.dht.pojo.Question;
+import com.dht.pojo.QuestionQueryBuilder;
 import com.dht.utils.MyConnectionSingleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,34 +20,19 @@ import java.util.List;
  *
  * @author admin
  */
-public class QuestionServices {
-    public List<Question> getQuestions(String kw, Category c, Level lvl) throws SQLException {
-        Connection conn = MyConnectionSingleton.getInstance().connect();
+public class QuestionServices extends QuestionServicesBase {
+    private QuestionQueryBuilder query;
 
-        // B3 -> Thuc thi truy van
-        String sql = "SELECT * FROM question WHERE 1=1";
-        
-        List<Object> params = new ArrayList<>();
-        if (kw != null && !kw.isEmpty()) {
-            sql += " AND content like concat('%', ?, '%')";
-            params.add(kw);
-        }
-        
-        if (c != null) {
-            sql += " AND category_id = ?";
-            params.add(c.getId());
-        }
-        
-        if (lvl != null) {
-            sql += " AND level_id = ?";
-            params.add(lvl.getId());
-        }
-        
-        sql += " ORDER BY id DESC";
-        
-        PreparedStatement stm = conn.prepareCall(sql);
-        for (int i = 0; i < params.size(); i++)
-            stm.setObject(i + 1, params.get(i));
+    public QuestionServices() {
+    }
+
+    public QuestionServices(QuestionQueryBuilder query) {
+        this.query = query;
+    }
+    
+    @Override
+    public List<Question> getQuestions() throws SQLException {
+        PreparedStatement stm = this.query.build();
         
         ResultSet rs = stm.executeQuery();
         
@@ -59,5 +45,12 @@ public class QuestionServices {
         }
         
         return questions;
+    }
+
+    /**
+     * @param query the query to set
+     */
+    public void setQuery(QuestionQueryBuilder query) {
+        this.query = query;
     }
 }
