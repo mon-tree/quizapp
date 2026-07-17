@@ -29,3 +29,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to ed
     -fx-padding: 10;
     -fx-font-size: 16;
 }
+
+.label, .radio-button {
+    -fx-text-fill: white; 
+}

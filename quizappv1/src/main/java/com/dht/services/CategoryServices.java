@@ -6,36 +6,23 @@ package com.dht.services;
 
 import com.dht.pojo.Category;
 import com.dht.utils.MyConnectionSingleton;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  * @author admin
  */
-public class CategoryServices {
+public class CategoryServices extends QueryServicesBase<Category> {
 
-    public List<Category> getCates() throws SQLException {
-        Connection conn = MyConnectionSingleton.getInstance().connect();
+    @Override
+    public PreparedStatement getStm() throws SQLException {
+        return MyConnectionSingleton.getInstance().connect().prepareCall("SELECT * FROM category");
+    }
 
-        // B3 -> Thuc thi truy van
-        String sql = "SELECT * FROM category";
-        PreparedStatement stm = conn.prepareCall(sql);
-        ResultSet rs = stm.executeQuery();
-        
-        List<Category> cates = new ArrayList<>();
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String name = rs.getString("name");
-
-            cates.add(new Category(id, name));
-        }
-        
-        return cates;
+    @Override
+    public Category getObject(ResultSet rs) throws SQLException {
+        return new Category(rs.getInt("id"), rs.getString("name"));
     }
 }
