@@ -8,6 +8,7 @@ import com.dht.pojo.Category;
 import com.dht.pojo.Level;
 import com.dht.pojo.Question;
 import com.dht.pojo.QuestionQueryBuilder;
+import com.dht.services.QueryServiceBase;
 import com.dht.utils.MyConnectionSingleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,7 +21,7 @@ import java.util.List;
  *
  * @author admin
  */
-public class QuestionServices extends QuestionServicesBase {
+public class QuestionServices extends QueryServiceBase<Question> implements QuestionServicesBase {
     private QuestionQueryBuilder query;
 
     public QuestionServices() {
@@ -30,22 +31,14 @@ public class QuestionServices extends QuestionServicesBase {
         this.query = query;
     }
     
-    
     @Override
-    public List<Question> getQuestions() throws SQLException {
-        PreparedStatement stm = this.query.build();
-        
-        ResultSet rs = stm.executeQuery();
+    public PreparedStatement getStm() throws SQLException {
+        return this.query.build();
+    }
 
-        List<Question> questions = new ArrayList<>();
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String content = rs.getString("content");
-
-            questions.add(new Question.Builder().setContent(content).setId(id).build());
-        }
-        
-        return questions;
+    @Override
+    public Question getObject(ResultSet rs) throws SQLException {
+        return new Question.Builder().setContent(rs.getString("content")).setId(rs.getInt("id")).build();
     }
 
     /**
@@ -54,4 +47,6 @@ public class QuestionServices extends QuestionServicesBase {
     public void setQuery(QuestionQueryBuilder query) {
         this.query = query;
     }
+
+    
 }
